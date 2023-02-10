@@ -51,14 +51,24 @@ jobs:
         docker push ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/docker-stuff:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
 
-    - name: Deploy to Elastic Beanstalk
-      run: |
-        aws elasticbeanstalk create-application-version \
-        --application-name docker-react \
-        --version-label ${{ env.TAG_NAME }} \
-        --source-bundle S3Bucket=elasticbeanstalk-us-east-1-547920023671,S3Key=.elasticbeanstalk
+   - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v16
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: docker-react
+        environment_name: Dockerreact-env
+        region: ${{env.AWS_REGION}}
+        deployment_package: deploy.zip
 
-        aws elasticbeanstalk update-environment \
-        --environment-name Dockerreact-env \
-        --version-label ${{ env.TAG_NAME }}
-      if: steps.test_run.outputs.exit-status == 0
+    # - name: Deploy to Elastic Beanstalk
+    #   run: |
+    #     aws elasticbeanstalk create-application-version \
+    #     --application-name docker-react \
+    #     --version-label ${{ env.TAG_NAME }} \
+    #     --source-bundle S3Bucket=elasticbeanstalk-us-east-1-547920023671,S3Key=.elasticbeanstalk
+
+    #     aws elasticbeanstalk update-environment \
+    #     --environment-name Dockerreact-env \
+    #     --version-label ${{ env.TAG_NAME }}
+    #   if: steps.test_run.outputs.exit-status == 0
