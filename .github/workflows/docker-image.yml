@@ -45,7 +45,7 @@ jobs:
         docker tag tanki500/docker-react:latest ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
         docker push ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
-      
+
     - name: Deploy to Elastic Beanstalk
       run: |
         aws elasticbeanstalk create-application-version \
@@ -56,3 +56,4 @@ jobs:
         aws elasticbeanstalk update-environment \
         --environment-name Dockerreact-env \
         --version-label ${{ env.TAG_NAME }}
+      if: steps.test_run.outputs.exit-status == 0
