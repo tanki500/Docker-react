@@ -48,7 +48,6 @@ jobs:
 
     - name: Push Docker image to AWS ECR
       run: |
-        $(aws ecr get-login --no-include-email --region ${{ env.AWS_REGION }})
         docker push tanki500/docker-react:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
 
