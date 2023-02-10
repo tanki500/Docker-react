@@ -2,20 +2,55 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
+
+env:
+  AWS_REGION: us-east-1
 
 jobs:
-
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Build the Docker image
       run: docker build -t tanki500/docker-react -f Dockerfile.dev .
-    - uses: actions/checkout@v3
-    - name: run tests
-      run:  docker run -e CI=true tanki500/docker-react npm run test
+
+    - name: Run tests
+      run: docker run -e CI=true tanki500/docker-react npm run test
+      id: test_run
+      shell: bash
+
+    - name: Check test results
+      if: steps.test_run.outputs.exit-status == 0
+      run: echo "Tests passed, proceeding with deployment"
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+      if: steps.test_run.outputs.exit-status == 0
+
+    - name: Login to AWS ECR
+      uses: aws-actions/amazon-ecr-login@v1
+      if: steps.test_run.outputs.exit-status == 0
+
+    - name: Push Docker image to AWS ECR
+      run: |
+        docker tag tanki500/docker-react:latest ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
+        docker push ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
+      if: steps.test_run.outputs.exit-status == 0
+
+    - name: Deploy to Elastic Beanstalk
+      uses: aws-actions/aws-elasticbeanstalk-deploy-application@v1
+      with:
+        application-name: docker-react
+        environment-name: Dockerreact-env
+        solution-stack: "64bit Amazon Linux 2 v7.9 running Docker 20.10.5"
+        source: build/
+      if: steps.test_run.outputs.exit-status == 0
