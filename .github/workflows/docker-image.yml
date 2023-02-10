@@ -37,13 +37,18 @@ jobs:
       if: steps.test_run.outputs.exit-status == 0
 
     - name: Login to AWS ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       if: steps.test_run.outputs.exit-status == 0
 
     - name: Push Docker image to AWS ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry}}
+        ECR_REPOSITORY: docker-react
+
       run: |
-        docker build tag tanki500/docker-react:latest ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
-        docker push ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG_NAME }} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
 
 
