@@ -40,7 +40,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
       if: steps.test_run.outputs.exit-status == 0
 
-      - name: Build Docker image
+    - name: Build Docker image
       run: |
         docker build -t tanki500/docker-react .
         docker tag tanki500/docker-react:latest tanki500/docker-react:${{ env.TAG_NAME }}
