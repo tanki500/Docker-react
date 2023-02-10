@@ -18,4 +18,4 @@ jobs:
       run: docker build -t tanki500/docker-react -f Dockerfile.dev .
     - uses: actions/checkout@v3
     - name: run tests
-      run:  docker run tanki500/docker-react npm run test
+      run:  docker run -e CI=true tanki500/docker-react npm run test
