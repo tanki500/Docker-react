@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  TAG_NAME: latest
+  TAG_NAME:latest
 
 jobs:
   deploy:
@@ -17,10 +17,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Build Docker image
-      run: |
-        docker build -t tanki500/docker-react .
-        docker tag tanki500/docker-react:latest tanki500/docker-react:${{ env.TAG_NAME }}
+    - name: Build the Docker image
+      run: docker build -t tanki500/docker-react .
 
     - name: Run tests
       run: docker run -e CI=true tanki500/docker-react npm run test
@@ -42,6 +40,11 @@ jobs:
     - name: Login to AWS ECR
       uses: aws-actions/amazon-ecr-login@v1
       if: steps.test_run.outputs.exit-status == 0
+
+    - name: Build Docker image
+      run: |
+        docker build -t tanki500/docker-react .
+        docker tag tanki500/docker-react:latest tanki500/docker-react:${{ env.TAG_NAME }}
 
     - name: Push Docker image to AWS ECR
       run: |
