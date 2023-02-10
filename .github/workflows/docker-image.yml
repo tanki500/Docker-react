@@ -37,20 +37,19 @@ jobs:
       if: steps.test_run.outputs.exit-status == 0
 
     - name: Login to AWS ECR
-      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       if: steps.test_run.outputs.exit-status == 0
 
-    - name: Push Docker image to AWS ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry}}
-        ECR_REPOSITORY: docker-react
-
+      - name: Build Docker image
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG_NAME }} .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG_NAME }}
-      if: steps.test_run.outputs.exit-status == 0
+        docker build -t tanki500/docker-react .
+        docker tag tanki500/docker-react:latest tanki500/docker-react:${{ env.TAG_NAME }}
 
+    - name: Push Docker image to AWS ECR
+      run: |
+        $(aws ecr get-login --no-include-email --region ${{ env.AWS_REGION }})
+        docker push tanki500/docker-react:${{ env.TAG_NAME }}
+      if: steps.test_run.outputs.exit-status == 0
 
     - name: Deploy to Elastic Beanstalk
       run: |
