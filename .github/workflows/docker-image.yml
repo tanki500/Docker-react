@@ -7,7 +7,6 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  TAG_NAME: latest
 
 jobs:
   deploy:
@@ -43,7 +42,7 @@ jobs:
 
     - name: Push Docker image to AWS ECR
       run: |
-        docker tag tanki500/docker-react:latest ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
+        docker build tag tanki500/docker-react:latest ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
         docker push ${{ env.AWS_REGION }}.dkr.ecr.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
 
