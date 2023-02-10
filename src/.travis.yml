@@ -6,4 +6,4 @@ before_install:
   - docker build -t tanki500/docker-react -f Dockerfile.dev .
 
 script:
-  - docker run -e CI=true tanki500/docker-react npm run test
+  - docker run tanki500/docker-react npm run test-- --coverage
