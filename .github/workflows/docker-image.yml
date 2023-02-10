@@ -51,7 +51,10 @@ jobs:
         docker push ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/docker-stuff:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
 
-   - name: Deploy to EB
+    - name: Generate Deployment Package
+      run: zip -r deploy.zip * -x "**node_modules**"
+
+    - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v16
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
