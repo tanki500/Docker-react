@@ -54,3 +54,14 @@ jobs:
         solution-stack: "64bit Amazon Linux 2 v7.9 running Docker 20.10.5"
         source: build/
       if: steps.test_run.outputs.exit-status == 0
+
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        aws elasticbeanstalk create-application-version \
+        --application-name docker-react \
+        --version-label ${{ env.TAG_NAME }} \
+        --source-bundle S3Bucket=elasticbeanstalk-us-east-1-547920023671
+
+        aws elasticbeanstalk update-environment \
+        --environment-name Dockerreact-env \
+        --version-label ${{ env.TAG_NAME }}
