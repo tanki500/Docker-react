@@ -44,11 +44,11 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t tanki500/docker-react .
-        docker tag tanki500/docker-react:latest ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
+        docker tag tanki500/docker-react:latest ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/docker-stuff:${{ env.TAG_NAME }}
 
     - name: Push Docker image to AWS ECR
       run: |
-        docker push ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/tanki500/docker-react:${{ env.TAG_NAME }}
+        docker push ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/docker-stuff:${{ env.TAG_NAME }}
       if: steps.test_run.outputs.exit-status == 0
 
     - name: Deploy to Elastic Beanstalk
